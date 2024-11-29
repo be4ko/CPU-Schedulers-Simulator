@@ -21,20 +21,6 @@ This project is a Java-based simulation of various CPU scheduling algorithms. Sc
 
 4. **FCAI Scheduling** (Novel Approach)  
    - Combines priority, arrival time, and remaining burst time into an adaptive **FCAI Factor**.  
-   - Features:
-     - **Dynamic FCAI Factor Calculation:**  
-       \[
-       \text{FCAI Factor} = (10 - \text{Priority}) + \left(\frac{\text{Arrival Time}}{V_1}\right) + \left(\frac{\text{Remaining Burst Time}}{V_2}\right)
-       \]
-       where:
-       - \(V_1 = \frac{\text{last arrival time of all processes}}{10}\)
-       - \(V_2 = \frac{\text{max burst time of all processes}}{10}\)
-     - **Dynamic Quantum Allocation Rules:**  
-       - \(Q = Q + 2\) if the process completes its quantum but still has work left.  
-       - \(Q = Q + \text{unused quantum}\) if the process is preempted.  
-     - **Preemptive and Non-Preemptive Execution:**  
-       - Processes execute non-preemptively for 40% of their quantum.  
-       - Preemption allowed after 40% execution if needed.
 
 ---
 
@@ -84,11 +70,20 @@ For each scheduling algorithm, the program provides:
   - Process \(P1\) executes for 3 units. Remaining burst time: 14.  
   - Process \(P2\) preempts \(P1\) and executes for 3 units. Remaining burst time: 3.  
   - \(P1\) resumes, executes for 2 units. Remaining burst time: 12.  
-  - ... (full timeline provided in program output).  
 
 - **Average Waiting Time:** \(X\) ms  
 - **Average Turnaround Time:** \(Y\) ms  
 
----
+## Installation
+Clone the repository to your local machine:
+```
+git clone https://github.com/yourusername/CPU-Schedulers-Simulator.git
+cd CPU-Schedulers-Simulator
+```
 
-### How to Run  
+### Contributors
+- AbubakerElsiddig
+- Hossamabohadima
+- Mohamed Kaseb
+- Abdulrahman Hamoli
+
