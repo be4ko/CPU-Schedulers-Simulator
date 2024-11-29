@@ -1,7 +1,8 @@
 # CPU Schedulers Simulator
 
 ### Overview  
-This project is a Java-based simulation of various CPU scheduling algorithms. Scheduling is a fundamental aspect of operating systems that determines how processes are allocated to the CPU. The simulator implements traditional scheduling techniques and introduces a novel FCAI scheduling algorithm to address common issues like starvation and inefficiency.
+This project is a Java-based simulation of various CPU scheduling algorithms. Scheduling is a fundamental aspect of operating systems that determines how processes are allocated to the CPU. 
+The simulator implements traditional scheduling techniques and introduces a novel FCAI scheduling algorithm to address common issues like starvation and inefficiency.
 
 ---
 
@@ -48,8 +49,6 @@ For each scheduling algorithm, the program provides:
 - **Average Waiting Time**  
 - **Average Turnaround Time**  
 - **Quantum Time History for FCAI Scheduling**  
-- **Graphical Representation** (Bonus)  
-  - Visualizes the execution timeline of processes.
 
 ---
 
