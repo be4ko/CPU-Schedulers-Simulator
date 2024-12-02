@@ -76,7 +76,7 @@ For each scheduling algorithm, the program provides:
 ## Installation
 Clone the repository to your local machine:
 ```
-git clone https://github.com/yourusername/CPU-Schedulers-Simulator.git
+git clone https://github.com/be4ko/CPU-Schedulers-Simulator.git
 cd CPU-Schedulers-Simulator
 ```
 
