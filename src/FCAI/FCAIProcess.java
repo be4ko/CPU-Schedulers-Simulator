@@ -1,49 +1,61 @@
 package FCAI;
 
 import interfaces.Process;
+import java.util.ArrayList;
+import java.util.List;
 
-public class FCAIProcess extends Thread {
-
+public class FCAIProcess {
     public Process process;
     public int priority;
     public int quantum;
     public int FCAIFactor;
-    public int v1;
-    public int v2;
-    public FCAISchedule schedule;
+    public double v1;
+    public double v2;
+    public int tempBurstTime;
+    public int startTime = -1;
+    public int completionTime;
+    public int FixedFCAIFactor;
+    public int temQuantum = 0;
+    public int smallQuantum;
+    List<Integer> historyQuantum = new ArrayList<>();
 
     public FCAIProcess(String name, String color, int arrivalTime, int burstTime, int priority, int quantum) {
         process = new Process(name, color, arrivalTime, burstTime);
         this.priority = priority;
         this.quantum = quantum;
+        historyQuantum.add(quantum);
+        smallQuantum = (int) (.4 * quantum);
+        this.tempBurstTime = burstTime;
     }
 
-    public void setV(int v1, int v2, FCAISchedule schedule) {
+    public void setV(double v1, double v2) {
         this.v1 = v1;
         this.v2 = v2;
-        this.schedule = schedule;
+        FixedFCAIFactor = (int) ((10 - priority) + (process.arrivalTime / v1));
         calculate();
     }
 
-    @Override
-    public void run() {
-        try {
-            int i = process.arrivalTime;
-            while (i != 0) {
-                i--;
-            }
-            schedule.addToQueue(this);
-        } catch (InterruptedException e) {
-            System.out.println(process.name + "error " + e);
-        }
+    public void updateQuantum(int x) {
+        quantum += x;
+        historyQuantum.add(quantum);
+        smallQuantum = (int) (.4 * quantum);
     }
 
     public void updateBurstTime(int executedTime) {
-        process.burstTime -= executedTime;
+        tempBurstTime -= executedTime;
         calculate();
     }
 
     public void calculate() {
-        FCAIFactor = (10 - priority) + (process.arrivalTime / v1) + (process.burstTime / v2);
+        FCAIFactor = (int) (FixedFCAIFactor + (tempBurstTime / v2));
+
+    }
+
+    public int getTurnaroundTime() {
+        return completionTime - process.arrivalTime;
+    }
+
+    public int getWaitingTime() {
+        return getTurnaroundTime() - process.burstTime;
     }
 }

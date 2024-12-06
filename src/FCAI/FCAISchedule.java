@@ -1,99 +1,145 @@
 package FCAI;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 public class FCAISchedule {
-    Queue<FCAIProcess> queue = new LinkedList<>();
-    List<FCAIProcess> processes;
-    FCAIProcess workingProcess = null;
-    int count = 0;
-    int executionTime;
-    int nonPreemptiveTime;
+    private final Queue<FCAIProcess> queue = new LinkedList<>();
+    private FCAIProcess[] processes;
+    private FCAIProcess currentProcess = null;
+    private Thread currentThread = null;
+    int time = 0;
 
-    public FCAISchedule(List<FCAIProcess> processes) throws InterruptedException {
+    public FCAISchedule(FCAIProcess[] processes) {
         this.processes = processes;
         getV();
+        FCAIManagement();
     }
 
-    public void addToQueue(FCAIProcess process) throws InterruptedException {
+    public void getV() {
+        double v1 = 0.0, v2 = 0.0;
+        for (FCAIProcess process : processes) {
+            v1 = Math.max(v1, (double) (process.process.arrivalTime / 10.0));
+            v2 = Math.max(v2, (double) (process.process.burstTime / 10.0));
 
-        if (queue.isEmpty() && workingProcess == null) {
-            workingProcess = process;
-            execute();
-        } else {
-            if (workingProcess != null && process.FCAIFactor < workingProcess.FCAIFactor && count > nonPreemptiveTime) {
-                workingProcess.interrupt();
-                workingProcess.updateBurstTime(count);
+        }
+        for (FCAIProcess process : processes) {
+            process.setV(v1, v2);
+        }
+    }
 
-                System.out.println(
-                        process.process.name + " preempts" + workingProcess.process.name + ", runs for" + count
-                                + " units\n");
+    private synchronized void scheduleThread(FCAIProcess process) {
 
-                if (workingProcess.process.burstTime > 0) {
-                    if (count < executionTime) {
-                        workingProcess.quantum += executionTime - count;
-                    } else {
-                        System.out
-                                .println(workingProcess.process.name + " starts execution, runs for " + executionTime +
-                                        " units, " + "remaining " + workingProcess.process.burstTime);
-                        workingProcess.quantum += 2;
-                    }
-                    queue.offer(workingProcess);
-
-                } else {
-                    System.out.println("Process " + workingProcess.process.name + " completed.");
-                }
-                workingProcess = process;
-                execute();
+        if (currentThread != null && currentThread.isAlive()) {
+            if (process.FCAIFactor < currentProcess.FCAIFactor
+                    && currentProcess.temQuantum > currentProcess.smallQuantum) {
+                currentThread.interrupt();
+                System.out.println("Preempting " + currentProcess.process.name + " for " + process.process.name);
+                queue.offer(currentProcess);
+                updateQuantum(currentProcess);
             } else {
                 queue.offer(process);
-
+                return;
             }
+        }
+
+        currentProcess = process;
+        currentThread = new Thread(() -> executeProcess(process));
+        currentThread.start();
+    }
+
+    private synchronized void schedulerThread(FCAIProcess process) {
+
+        currentProcess = process;
+        currentThread = new Thread(() -> executeProcess(process));
+        currentThread.start();
+    }
+
+    private void executeProcess(FCAIProcess process) {
+        try {
+            int quantum = process.quantum;
+            for (process.temQuantum = 0; process.temQuantum < quantum; process.temQuantum++) {
+                time++;
+                Thread.sleep(940);
+                process.updateBurstTime(1);
+                System.out.println(
+                        "Executing " + process.process.name + ", remaining burst time: " + process.tempBurstTime);
+
+                if (process.tempBurstTime <= 0) {
+                    process.completionTime = time;
+                    System.out.println("Process " + process.process.name + " completed.");
+                    return;
+                }
+            }
+            queue.offer(process);
+            updateQuantum(process);
+            while (!queue.isEmpty()) {
+                FCAIProcess nextProcess = queue.poll();
+                schedulerThread(nextProcess);
+                try {
+                    currentThread.join();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        } catch (InterruptedException e) {
+            System.out.println("Process " + process.process.name + " was preempted.");
         }
     }
 
-    public void execute() {
-        do {
-            System.out.println("Executing process: " + workingProcess.process.name);
-            count = 0;
-            executionTime = Math.min(workingProcess.quantum, workingProcess.process.burstTime);
-            nonPreemptiveTime = (int) Math.ceil(0.4 * executionTime);
-            while (count < executionTime) {
-                count++;
-            }
-            workingProcess.updateBurstTime(executionTime);
-            System.out.println(workingProcess.process.name + " starts execution, runs for " + executionTime +
-                    " units,\r\n" + "remaining " + workingProcess.process.burstTime);
-
-            if (workingProcess.process.burstTime > 0) {
-                workingProcess.quantum += 2;
-                queue.offer(workingProcess);
+    private void updateQuantum(FCAIProcess process) {
+        if (process.tempBurstTime > 0) {
+            if (currentProcess.temQuantum == currentProcess.quantum) {
+                process.updateQuantum(2);
             } else {
-                System.out.println("Process " + workingProcess.process.name + " completed.");
+                process.updateQuantum(currentProcess.quantum - currentProcess.temQuantum);
             }
-            workingProcess = queue.poll();
-        } while (!queue.isEmpty());
-
-    }
-
-    public void getV() throws InterruptedException {
-        int v1 = 0;
-        int v2 = 0;
-        for (FCAIProcess process : processes) {
-            v1 = Math.max(v1, process.process.arrivalTime / 10);
-            v2 = Math.max(v2, process.process.burstTime / 10);
-        }
-        for (FCAIProcess process : processes) {
-            process.setV(v1, v2, this);
-        }
-        for (FCAIProcess process : processes) {
-            process.start();
-        }
-        for (FCAIProcess process : processes) {
-            process.join();
         }
     }
 
+    private void FCAIManagement() {
+        Arrays.sort(processes, Comparator.comparingInt(p -> p.process.arrivalTime));
+
+        for (int i = 0; i < processes.length - 1; i++) {
+            scheduleThread(processes[i]);
+            try {
+                Thread.sleep((processes[i + 1].process.arrivalTime - processes[i].process.arrivalTime) * 1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        scheduleThread(processes[processes.length - 1]);
+
+        while (!queue.isEmpty()) {
+            FCAIProcess nextProcess = queue.poll();
+            schedulerThread(nextProcess);
+            try {
+                currentThread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        printResults();
+    }
+
+    private void printResults() {
+        int totalWaitingTime = 0;
+        int totalTurnaroundTime = 0;
+
+        for (FCAIProcess process : processes) {
+            int turnaroundTime = process.getTurnaroundTime();
+            int waitingTime = process.getWaitingTime();
+            totalWaitingTime += waitingTime;
+            totalTurnaroundTime += turnaroundTime;
+
+            System.out.println("Process " + process.process.name + " Turnaround Time: " + turnaroundTime
+                    + ", Waiting Time: " + waitingTime + " , " + process.historyQuantum);
+        }
+
+        System.out.println("Average Turnaround Time: " + ((float) totalTurnaroundTime / processes.length));
+        System.out.println("Average Waiting Time: " + ((float) totalWaitingTime / processes.length));
+    }
 }
