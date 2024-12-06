@@ -11,6 +11,7 @@ public class FCAISchedule {
     private FCAIProcess currentProcess = null;
     private Thread currentThread = null;
     int time = 0;
+    boolean flag = false;
 
     public FCAISchedule(FCAIProcess[] processes) {
         this.processes = processes;
@@ -31,61 +32,73 @@ public class FCAISchedule {
     }
 
     private synchronized void scheduleThread(FCAIProcess process) {
+        queue.offer(process);
+        if (currentThread == null) {
+            currentProcess = queue.poll();
+            currentThread = new Thread(() -> executeProcess(currentProcess));
+            currentThread.start();
+        }
+    }
 
-        if (currentThread != null && currentThread.isAlive()) {
-            if (process.FCAIFactor < currentProcess.FCAIFactor
-                    && currentProcess.temQuantum > currentProcess.smallQuantum) {
-                currentThread.interrupt();
-                System.out.println("Preempting " + currentProcess.process.name + " for " + process.process.name);
-                queue.offer(currentProcess);
-                updateQuantum(currentProcess);
-            } else {
-                queue.offer(process);
-                return;
+    private FCAIProcess findHigherPriorityProcess(FCAIProcess currentProcess) {
+        FCAIProcess highestPriorityProcess = null;
+
+        for (FCAIProcess process : queue) {
+            if (process.FCAIFactor < currentProcess.FCAIFactor) {
+                if (highestPriorityProcess == null || process.FCAIFactor < highestPriorityProcess.FCAIFactor) {
+                    highestPriorityProcess = process;
+                }
             }
         }
 
-        currentProcess = process;
-        currentThread = new Thread(() -> executeProcess(process));
-        currentThread.start();
-    }
-
-    private synchronized void schedulerThread(FCAIProcess process) {
-
-        currentProcess = process;
-        currentThread = new Thread(() -> executeProcess(process));
-        currentThread.start();
+        if (highestPriorityProcess != null) {
+            queue.remove(highestPriorityProcess);
+        }
+        return highestPriorityProcess;
     }
 
     private void executeProcess(FCAIProcess process) {
-        try {
-            int quantum = process.quantum;
-            for (process.temQuantum = 0; process.temQuantum < quantum; process.temQuantum++) {
-                time++;
-                Thread.sleep(940);
-                process.updateBurstTime(1);
-                System.out.println(
-                        "Executing " + process.process.name + ", remaining burst time: " + process.tempBurstTime);
+        while (process != null && process.tempBurstTime > 0) {
+            try {
+                for (process.temQuantum = 0; process.temQuantum < process.quantum; process.temQuantum++) {
+                    if (process.temQuantum > process.smallQuantum) {
+                        FCAIProcess higherPriorityProcess = findHigherPriorityProcess(process);
+                        if (higherPriorityProcess != null) {
+                            System.out.println("Preempting " + process.process.name + " for "
+                                    + higherPriorityProcess.process.name);
+                            queue.offer(process);
+                            updateQuantum(process);
+                            process = higherPriorityProcess;
+                            flag = true;
+                            break;
+                        }
+                    }
 
-                if (process.tempBurstTime <= 0) {
-                    process.completionTime = time;
-                    System.out.println("Process " + process.process.name + " completed.");
-                    return;
+                    time++;
+                    Thread.sleep(1000);
+                    process.updateBurstTime(1);
+
+                    System.out.println("Executing " + process.process.name + ", remaining burst time: "
+                            + process.tempBurstTime);
+
+                    if (process.tempBurstTime <= 0) {
+                        process.completionTime = time;
+                        System.out.println("Process " + process.process.name + " completed.");
+                        process = queue.poll();
+                        break;
+                    }
                 }
-            }
-            queue.offer(process);
-            updateQuantum(process);
-            while (!queue.isEmpty()) {
-                FCAIProcess nextProcess = queue.poll();
-                schedulerThread(nextProcess);
-                try {
-                    currentThread.join();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+
+                if (!flag && process != null && process.tempBurstTime > 0) {
+                    queue.offer(process);
+                    updateQuantum(process);
+                    process = queue.poll();
                 }
+            } catch (InterruptedException e) {
+                System.out.println("Process " + process.process.name + " was interrupted.");
+                Thread.currentThread().interrupt();
             }
-        } catch (InterruptedException e) {
-            System.out.println("Process " + process.process.name + " was preempted.");
+            flag = false;
         }
     }
 
@@ -111,15 +124,12 @@ public class FCAISchedule {
             }
         }
         scheduleThread(processes[processes.length - 1]);
-
-        while (!queue.isEmpty()) {
-            FCAIProcess nextProcess = queue.poll();
-            schedulerThread(nextProcess);
-            try {
+        try {
+            if (currentProcess != null) {
                 currentThread.join();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
             }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
 
         printResults();
