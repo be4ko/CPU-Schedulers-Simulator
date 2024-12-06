@@ -76,4 +76,5 @@ public class SJFSchedule {
 
         return output.toString();
     }
+
 }
