@@ -13,14 +13,13 @@ public class SFJ_GUI extends JFrame {
 
     public SFJ_GUI() {
         // Initialize processes
-        processes.add(new SJFProcess("P1", "Red", 0, 5));
-        processes.add(new SJFProcess("P2", "Blue", 2, 3));
+        processes.add(new SJFProcess("P1", "Red", 0, 7));
+        processes.add(new SJFProcess("P2", "Blue", 2, 4));
         processes.add(new SJFProcess("P3", "Green", 4, 1));
+        processes.add(new SJFProcess("P4", "black", 5, 4));
 
-        // Calculate SJF execution order
         calculateExecutionOrder();
 
-        // Generate results for display
         String result = generateResults();
 
         // Set up JFrame
@@ -70,14 +69,11 @@ public class SFJ_GUI extends JFrame {
             int waitingTime = Math.max(0, currentTime - process.process.arrivalTime);
             int turnaroundTime = waitingTime + process.process.burstTime;
 
-            // Update totals
             totalWaitingTime += waitingTime;
             totalTurnaroundTime += turnaroundTime;
 
-            // Update current time
             currentTime += process.process.burstTime;
 
-            // Append process results
             resultBuilder.append(process.process.name).append(": ").append(waitingTime).append("\n");
         }
 
@@ -105,7 +101,7 @@ public class SFJ_GUI extends JFrame {
                 int barHeight = 30;
                 int gap = 5;
 
-                for (SJFProcess process : executionOrder) { // Use the calculated execution order
+                for (SJFProcess process : executionOrder) {
                     switch (process.process.color) {
                         case "Red" -> g.setColor(Color.RED);
                         case "Blue" -> g.setColor(Color.BLUE);
@@ -113,11 +109,9 @@ public class SFJ_GUI extends JFrame {
                         default -> g.setColor(Color.GRAY);
                     }
 
-                    // Draw the process bar
-                    int barWidth = process.process.burstTime * 50; // Scale burst time
+                    int barWidth = process.process.burstTime * 50;
                     g.fillRect(x, y, barWidth, barHeight);
 
-                    // Draw process label
                     g.setColor(Color.BLACK);
                     g.drawString(process.process.name, x + 5, y + 20);
 
