@@ -23,7 +23,7 @@ public class FCAI_GUI extends JFrame {
 
         // Set up JFrame
         setTitle("FCAI CPU Scheduling");
-        setSize(700, 200);
+        setSize(800, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
