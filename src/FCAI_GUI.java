@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FCAI_GUI extends JFrame {
+    private FCAI.FCAISchedule FCAISchedule;
     private List<FCAIProcess> processes;
 
     public FCAI_GUI() {
@@ -16,7 +17,7 @@ public class FCAI_GUI extends JFrame {
         processes.add(new FCAIProcess("P3", "green", 4, 10, 3, 5));
         processes.add(new FCAIProcess("P4", "yellow", 29, 4, 8, 2));
 
-        new FCAISchedule(processes.toArray(new FCAIProcess[0]));
+        FCAISchedule schedule = new FCAISchedule(processes.toArray(new FCAIProcess[0]));
 
         // Set up JFrame
         setTitle("FCAI CPU Scheduling");
@@ -24,10 +25,10 @@ public class FCAI_GUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         // Add components
-        add(createGraphPanel(), BorderLayout.CENTER);
+        add(createGraphPanel(FCAISchedule), BorderLayout.CENTER);
     }
 
-    private JPanel createGraphPanel() {
+    private JPanel createGraphPanel(FCAISchedule schedule) {
         JPanel graphPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -48,7 +49,7 @@ public class FCAI_GUI extends JFrame {
                             case "yellow" -> g.setColor(Color.yellow);
                             default -> g.setColor(Color.GRAY);
                         }
-
+//                        schedule.output;
                         int segmentWidth = quantumUsage * 10;
                         g.fillRect(startX, y, segmentWidth, barHeight);
 
