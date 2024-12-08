@@ -7,9 +7,16 @@ import java.util.Iterator;
 public class PrioSchedule {
     private PrioProcess[] processes;
     private PriorityQueue<PrioProcess> priorityQueue;
+    private int contextSwitch;
 
     public PrioSchedule(PrioProcess[] processes) {
         this.processes = processes;
+        this.contextSwitch = 0;
+    }
+
+    public PrioSchedule(PrioProcess[] processes, int contextSwitch) {
+        this.processes = processes;
+        this.contextSwitch = contextSwitch;
     }
 
     public void simulatePrio() {
@@ -23,9 +30,9 @@ public class PrioSchedule {
 
         while (remainingProcesses > 0) {
             for (int j = 0; j < processes.length; j++) {
-                if (processes[j].getArrivalTime() <= time && processes[j].getFlag() == false) {
+                if (processes[j].getArrivalTime() <= time && processes[j].getFinished() == false) {
                     priorityQueue.add(processes[j]);
-                    processes[j].setFlag(true);
+                    processes[j].setFinished(true);
                 }
             }
 
@@ -41,8 +48,6 @@ public class PrioSchedule {
 
                 PrioProcess currentProcess = priorityQueue.poll();
                 currentProcess.setWaitingTime(time);
-                System.out.println(time);
-                System.out.println(currentProcess.getArrivalTime());
 
                 int burstTime = currentProcess.getBurstTime();
 
@@ -62,6 +67,8 @@ public class PrioSchedule {
                     burstTime--;
                     time++;
                 }
+
+                time += contextSwitch;
 
                 currentProcess.setTurnaroundTime(time);
                 System.out.println("Process " + currentProcess.getName() +

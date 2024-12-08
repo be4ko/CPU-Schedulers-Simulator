@@ -31,11 +31,10 @@ public class Main {
                                 new PrioProcess("P1", "Red", 0, 5, 2),
                                 new PrioProcess("P2", "Blue", 1, 3, 1),
                                 new PrioProcess("P3", "Green", 2, 8, 3),
-                                new PrioProcess("P4", "Yellow", 3, 6, 2),
-                                new PrioProcess("P5", "Orange", 4, 4, 4)
+                                new PrioProcess("P4", "Yellow", 3, 6, 2)
                 };
 
-                PrioSchedule scheduler = new PrioSchedule(processes);
+                PrioSchedule scheduler = new PrioSchedule(processes, 1);
 
                 System.out.println("Starting Priority Scheduling Simulation...");
                 scheduler.simulatePrio();

@@ -1,7 +1,5 @@
 package PriorityScheduling;
 
-import java.util.Set;
-
 import interfaces.Process;
 
 public class PrioProcess {
@@ -9,12 +7,12 @@ public class PrioProcess {
     private int turnaroundTime;
     private int waitingTime;
     private int priority;
-    private boolean flag;
+    private boolean finished;
 
     public PrioProcess(String name, String color, int arrivalTime, int burstTime, int priority) {
         process = new Process(name, color, arrivalTime, burstTime);
         this.priority = priority;
-        this.flag = false;
+        this.finished = false;
     }
 
     public void setTurnaroundTime(int completionTime) {
@@ -37,12 +35,12 @@ public class PrioProcess {
         process.setName(name);
     }
 
-    public void setFlag(boolean flag) {
-        this.flag = flag;
+    public void setFinished(boolean finished) {
+        this.finished = finished;
     }
 
-    public boolean getFlag() {
-        return flag;
+    public boolean getFinished() {
+        return finished;
     }
 
     public int getTurnaroundTime() {
