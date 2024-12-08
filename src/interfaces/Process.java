@@ -1,7 +1,6 @@
 package interfaces;
 
 public class Process {
-
     public String name;
     public String color;
     public int arrivalTime;
@@ -14,4 +13,31 @@ public class Process {
         this.burstTime = burstTime;
     }
 
+    public void setArrivalTime(int arrivalTime) {
+        this.arrivalTime = arrivalTime;
+    }
+
+    public void setBurstTime(int burstTime) {
+        this.burstTime = burstTime;
+    }
+
+    public int getArrivalTime() {
+        return arrivalTime;
+    }
+
+    public int getBurstTime() {
+        return burstTime;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
