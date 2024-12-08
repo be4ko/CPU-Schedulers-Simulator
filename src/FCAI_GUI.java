@@ -38,14 +38,14 @@ public class FCAI_GUI extends JFrame {
 
                 for (FCAIProcess process : processes) {
                     int y = 50 + processes.indexOf(process) * (barHeight + gap);
-
                     int startX = x;
+
                     for (int quantumUsage : process.historyQuantum) {
                         switch (process.process.color) {
                             case "red" -> g.setColor(Color.RED);
                             case "blue" -> g.setColor(Color.BLUE);
                             case "green" -> g.setColor(Color.GREEN);
-                            case "yreen" -> g.setColor(Color.yellow);
+                            case "yellow" -> g.setColor(Color.yellow);
                             default -> g.setColor(Color.GRAY);
                         }
 
