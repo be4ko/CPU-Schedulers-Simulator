@@ -12,12 +12,11 @@ public class FCAIProcess {
     public double v1;
     public double v2;
     public int tempBurstTime;
-    public int startTime = -1;
     public int completionTime;
     public int FixedFCAIFactor;
     public int temQuantum = 0;
     public int smallQuantum;
-    List<Integer> historyQuantum = new ArrayList<>();
+    public List<Integer> historyQuantum = new ArrayList<>();
 
     public FCAIProcess(String name, String color, int arrivalTime, int burstTime, int priority, int quantum) {
         process = new Process(name, color, arrivalTime, burstTime);
