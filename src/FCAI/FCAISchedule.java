@@ -1,12 +1,16 @@
 package FCAI;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 public class FCAISchedule {
     private final Queue<FCAIProcess> queue = new LinkedList<>();
+    public final Queue<Map.Entry<FCAIProcess, Integer>> output = new LinkedList<>();
+
     private FCAIProcess[] processes;
     private FCAIProcess currentProcess = null;
     private Thread currentThread = null;
@@ -58,6 +62,7 @@ public class FCAISchedule {
     }
 
     private void executeProcess(FCAIProcess process) {
+        int count = 0;
         while (process != null && process.tempBurstTime > 0) {
             try {
                 for (process.temQuantum = 0; process.temQuantum < process.quantum; process.temQuantum++) {
@@ -68,6 +73,9 @@ public class FCAISchedule {
                                     + higherPriorityProcess.process.name);
                             queue.offer(process);
                             updateQuantum(process);
+                            Map.Entry<FCAIProcess, Integer> entry1 = new AbstractMap.SimpleEntry<>(process, count);
+                            output.offer(entry1);
+                            count = 0;
                             process = higherPriorityProcess;
                             flag = true;
                             break;
@@ -80,10 +88,14 @@ public class FCAISchedule {
 
                     System.out.println("Executing " + process.process.name + ", remaining burst time: "
                             + process.tempBurstTime);
+                    count++;
 
                     if (process.tempBurstTime <= 0) {
                         process.completionTime = time;
                         System.out.println("Process " + process.process.name + " completed.");
+                        Map.Entry<FCAIProcess, Integer> entry1 = new AbstractMap.SimpleEntry<>(process, count);
+                        output.offer(entry1);
+                        count = 0;
                         process = queue.poll();
                         break;
                     }
@@ -92,6 +104,9 @@ public class FCAISchedule {
                 if (!flag && process != null && process.tempBurstTime > 0) {
                     queue.offer(process);
                     updateQuantum(process);
+                    Map.Entry<FCAIProcess, Integer> entry1 = new AbstractMap.SimpleEntry<>(process, count);
+                    output.offer(entry1);
+                    count = 0;
                     process = queue.poll();
                 }
             } catch (InterruptedException e) {
