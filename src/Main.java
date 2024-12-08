@@ -19,9 +19,9 @@ public class Main {
                 // new FCAISchedule(processes);
 
                 // List<SJFProcess> processes1 = new ArrayList<>();
-                // processes1.add(new SJFProcess("P1", "Red", 0, 5));
-                // processes1.add(new SJFProcess("P2", "Blue", 2, 3));
-                // processes1.add(new SJFProcess("P3", "Green", 4, 1));
+                // processes1.add(new SJFProcess("P1", "Red", 0, 10));
+                // processes1.add(new SJFProcess("P2", "Blue", 2, 4));
+                // processes1.add(new SJFProcess("P3", "Green", 3, 1));
 
                 // SJFSchedule scheduler = new SJFSchedule();
                 // String result = scheduler.simulateSJF(processes1);
