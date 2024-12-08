@@ -18,16 +18,31 @@ public class SJFSchedule {
         List<SJFProcess> executionOrder = new ArrayList<>();
         int[] waitingTime = new int[processes.size()];
         int[] turnaroundTime = new int[processes.size()];
+        int[] agingFactors = new int[processes.size()]; // Track aging for each process
 
         int index = 0;
+        final int AGING_INCREMENT = 1; // Aging adjustment factor
 
         while (index < processes.size() || !readyQueue.isEmpty()) {
+            // Add processes to the ready queue if they have arrived
             while (index < processes.size() && processes.get(index).process.arrivalTime <= currentTime) {
                 readyQueue.add(processes.get(index));
                 index++;
             }
 
+            // Apply aging: reduce the effective burst time of waiting processes
+            List<SJFProcess> tempQueue = new ArrayList<>(readyQueue);
+            readyQueue.clear();
+            for (SJFProcess process : tempQueue) {
+                int processIndex = processes.indexOf(process);
+                agingFactors[processIndex] += AGING_INCREMENT; // Increase aging factor
+                int adjustedBurstTime = process.process.burstTime - agingFactors[processIndex];
+                process.process.burstTime = Math.max(1, adjustedBurstTime); // Avoid negative or zero burst time
+                readyQueue.add(process);
+            }
+
             if (!readyQueue.isEmpty()) {
+                // Process the job with the shortest (or aged) burst time
                 SJFProcess currentProcess = readyQueue.poll();
                 executionOrder.add(currentProcess);
 
@@ -38,6 +53,7 @@ public class SJFSchedule {
                 totalWaitingTime += waitingTime[processIndex];
                 totalTurnaroundTime += turnaroundTime[processIndex];
 
+                // Execute the process
                 currentTime += currentProcess.process.burstTime;
             } else {
                 // No process is ready; increment time to the next process's arrival
@@ -47,6 +63,7 @@ public class SJFSchedule {
             }
         }
 
+        // Prepare the output
         StringBuilder output = new StringBuilder("Processes execution order:\n");
         for (SJFProcess process : executionOrder) {
             output.append(process.process.name).append(" ");
@@ -76,5 +93,4 @@ public class SJFSchedule {
 
         return output.toString();
     }
-
 }
