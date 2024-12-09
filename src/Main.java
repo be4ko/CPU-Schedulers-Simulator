@@ -4,6 +4,8 @@ import PriorityScheduling.PrioProcess;
 import PriorityScheduling.PrioSchedule;
 import SJF.SJFProcess;
 import SJF.SJFSchedule;
+import SRTF.SRTFProcess;
+import SRTF.SRTFSchedule;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -27,26 +29,35 @@ public class Main {
                 // String result = scheduler.simulateSJF(processes1);
                 // System.out.println(result);
 
-                PrioProcess[] processes = {
-                                new PrioProcess("P1", "Red", 0, 5, 2),
-                                new PrioProcess("P2", "Blue", 1, 3, 1),
-                                new PrioProcess("P3", "Green", 2, 8, 3),
-                                new PrioProcess("P4", "Yellow", 3, 6, 2)
-                };
+                // PrioProcess[] processes = {
+                // new PrioProcess("P1", "Red", 0, 5, 2),
+                // new PrioProcess("P2", "Blue", 1, 3, 1),
+                // new PrioProcess("P3", "Green", 2, 8, 3),
+                // new PrioProcess("P4", "Yellow", 3, 6, 2)
+                // };
 
-                PrioSchedule scheduler = new PrioSchedule(processes, 1);
+                // PrioSchedule scheduler = new PrioSchedule(processes, 1);
 
-                System.out.println("Starting Priority Scheduling Simulation...");
-                scheduler.simulatePrio();
-                System.out.println("Simulation Complete!");
+                // System.out.println("Starting Priority Scheduling Simulation...");
+                // scheduler.simulatePrio();
+                // System.out.println("Simulation Complete!");
 
                 // List<SJFProcess> processes1 = new ArrayList<>();
                 // processes1.add(new SJFProcess("P1", "Red", 0, 5));
                 // processes1.add(new SJFProcess("P2", "Blue", 2, 3));
                 // processes1.add(new SJFProcess("P3", "Green", 4, 1));
-                //
+
                 // SJFSchedule scheduler = new SJFSchedule();
                 // String result = scheduler.simulateSJF(processes1);
                 // System.out.println(result);
+
+                List<SRTFProcess> processes = new ArrayList<>();
+                processes.add(new SRTFProcess("P1", "Red", 0, 10));
+                processes.add(new SRTFProcess("P2", "Blue", 2, 4));
+                processes.add(new SRTFProcess("P3", "Green", 3, 1));
+
+                SRTFSchedule scheduler1 = new SRTFSchedule();
+                scheduler1.simulateSRTF(processes, 1);
         }
+
 }
