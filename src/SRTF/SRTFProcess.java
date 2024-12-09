@@ -8,6 +8,6 @@ public class SRTFProcess {
 
     public SRTFProcess(String name, String color, int arrivalTime, int burstTime) {
         process = new Process(name, color, arrivalTime, burstTime);
-        this.remainingTime = burstTime; // Initially, remaining time is equal to burst time
+        this.remainingTime = burstTime; // Initialize with the burst time
     }
 }

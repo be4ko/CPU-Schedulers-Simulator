@@ -6,7 +6,7 @@ import java.util.PriorityQueue;
 
 public class SRTFSchedule {
 
-    public String simulateSRTF(List<SRTFProcess> processes, int contextSwitching) {
+    public void simulateSRTF(List<SRTFProcess> processes, int contextSwitching) {
         PriorityQueue<SRTFProcess> readyQueue = new PriorityQueue<>(
                 (p1, p2) -> Integer.compare(p1.remainingTime, p2.remainingTime));
 
@@ -18,6 +18,7 @@ public class SRTFSchedule {
         List<SRTFProcess> executionOrder = new ArrayList<>();
         int[] waitingTime = new int[processes.size()];
         int[] turnaroundTime = new int[processes.size()];
+        int[] finishingTime = new int[processes.size()]; // Store the finishing time for each process
 
         int index = 0;
         SRTFProcess currentProcess = null;
@@ -34,65 +35,68 @@ public class SRTFSchedule {
             if (contextSwitchTime > 0) {
                 contextSwitchTime--;
                 currentTime++;
-                continue;
+                continue; // Skip execution this cycle
+            }
+
+            // Check for preemption
+            if (currentProcess != null && !readyQueue.isEmpty()) {
+                SRTFProcess nextProcess = readyQueue.peek(); // Check the process with the shortest remaining time
+                if (nextProcess.remainingTime < currentProcess.remainingTime) {
+                    readyQueue.add(currentProcess); // Preempt the current process
+                    currentProcess = readyQueue.poll(); // Switch to the new process
+                    contextSwitchTime = contextSwitching; // Apply context switching delay
+                }
             }
 
             if (currentProcess == null || currentProcess.remainingTime == 0) {
                 if (currentProcess != null && currentProcess.remainingTime == 0) {
-                    // Process has finished execution
                     int processIndex = processes.indexOf(currentProcess);
-                    turnaroundTime[processIndex] = currentTime - currentProcess.process.arrivalTime;
+
+                    // Record the finishing time
+                    finishingTime[processIndex] = currentTime;
+
+                    // Calculate turnaround time
+                    turnaroundTime[processIndex] = finishingTime[processIndex] - currentProcess.process.arrivalTime;
+
+                    // Calculate waiting time
                     waitingTime[processIndex] = turnaroundTime[processIndex] - currentProcess.process.burstTime;
 
+                    // Update totals
                     totalWaitingTime += waitingTime[processIndex];
                     totalTurnaroundTime += turnaroundTime[processIndex];
 
-                    executionOrder.add(currentProcess);
+                    executionOrder.add(currentProcess); // Add to execution order
                     currentProcess = null; // Process completed
                 }
 
                 if (!readyQueue.isEmpty()) {
-                    currentProcess = readyQueue.poll();
+                    currentProcess = readyQueue.poll(); // Pick the next process
                     contextSwitchTime = contextSwitching;
                 }
             }
 
             if (currentProcess != null) {
-                currentProcess.remainingTime--;
+                currentProcess.remainingTime--; // Decrement the remaining time
                 currentTime++;
             } else if (index < processes.size()) {
-                currentTime = processes.get(index).process.arrivalTime;
+                currentTime = processes.get(index).process.arrivalTime; // Advance to the next process's arrival
             }
         }
 
-        // Prepare the output
-        StringBuilder output = new StringBuilder("Processes execution order:\n");
-        for (SRTFProcess process : executionOrder) {
-            output.append(process.process.name).append(" ");
+        System.out.println("Waiting Time for each process:");
+        for (int i = 0; i < processes.size(); i++) {
+            System.out.println(processes.get(i).process.name + ": " + waitingTime[i]);
         }
 
-        output.append("\n\nWaiting Time for each process:\n");
+        System.out.println("Turnaround Time for each process:");
         for (int i = 0; i < processes.size(); i++) {
-            output.append(processes.get(i).process.name)
-                    .append(": ")
-                    .append(waitingTime[i])
-                    .append("\n");
-        }
-
-        output.append("\nTurnaround Time for each process:\n");
-        for (int i = 0; i < processes.size(); i++) {
-            output.append(processes.get(i).process.name)
-                    .append(": ")
-                    .append(turnaroundTime[i])
-                    .append("\n");
+            System.out.println(processes.get(i).process.name + ": " + turnaroundTime[i]);
         }
 
         double avgWaitingTime = (double) totalWaitingTime / processes.size();
         double avgTurnaroundTime = (double) totalTurnaroundTime / processes.size();
 
-        output.append("\nAverage Waiting Time: ").append(String.format("%.2f", avgWaitingTime));
-        output.append("\nAverage Turnaround Time: ").append(String.format("%.2f", avgTurnaroundTime));
-
-        return output.toString();
+        System.out.println("Average Waiting Time: " + String.format("%.2f", avgWaitingTime));
+        System.out.println("Average Turnaround Time: " + String.format("%.2f", avgTurnaroundTime));
     }
 }
