@@ -1,22 +1,24 @@
 package PriorityScheduling;
 
-import java.util.PriorityQueue;
-import java.util.Comparator;
-import java.util.Iterator;
+import java.util.*;
 
 public class PrioSchedule {
     private PrioProcess[] processes;
-    private PriorityQueue<PrioProcess> priorityQueue;
+    public PriorityQueue<PrioProcess> priorityQueue;
     private int contextSwitch;
+    private List<PrioProcess> executionOrder; //تبع ابوبكر "ممنوع الإقتراب أو التعديل"
+
 
     public PrioSchedule(PrioProcess[] processes) {
         this.processes = processes;
         this.contextSwitch = 0;
+        this.executionOrder = new ArrayList<>();
     }
 
     public PrioSchedule(PrioProcess[] processes, int contextSwitch) {
         this.processes = processes;
         this.contextSwitch = contextSwitch;
+        this.executionOrder = new ArrayList<>();
     }
 
     public void simulatePrio() {
@@ -40,6 +42,9 @@ public class PrioSchedule {
 
                 System.out.println("Ready processes: ");
                 Iterator<PrioProcess> through = priorityQueue.iterator();
+
+
+
                 while (through.hasNext()) {
                     PrioProcess readyProcess = through.next();
                     System.out.println("Process Name: " + readyProcess.getName() +
@@ -47,6 +52,7 @@ public class PrioSchedule {
                 }
 
                 PrioProcess currentProcess = priorityQueue.poll();
+                executionOrder.add(currentProcess);
                 currentProcess.setWaitingTime(time);
 
                 int burstTime = currentProcess.getBurstTime();
@@ -90,5 +96,9 @@ public class PrioSchedule {
 
         System.out.println("Average Waiting Time for all processes: " + averageWaitingTime +
                 " and Average Turnaround Time for all processes: " + averageTurnaroundTime);
+    }
+
+    public List<PrioProcess> getExecutionOrder() { //تبع ابوبكر "ممنوع الإقتراب أو التعديل"
+        return executionOrder;
     }
 }

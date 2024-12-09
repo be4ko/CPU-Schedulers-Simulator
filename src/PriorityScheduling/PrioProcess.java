@@ -66,4 +66,5 @@ public class PrioProcess {
     public String getName() {
         return process.getName();
     }
+    public String getColor() { return process.color ; }
 }
