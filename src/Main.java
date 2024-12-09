@@ -51,13 +51,17 @@ public class Main {
                 // String result = scheduler.simulateSJF(processes1);
                 // System.out.println(result);
 
-                List<SRTFProcess> processes = new ArrayList<>();
-                processes.add(new SRTFProcess("P1", "Red", 0, 10));
-                processes.add(new SRTFProcess("P2", "Blue", 2, 4));
-                processes.add(new SRTFProcess("P3", "Green", 3, 1));
+                List<SRTFProcess> processList = new ArrayList<>();
+                processList.add(new SRTFProcess("P1", "Red", 0, 7));
+                processList.add(new SRTFProcess("P2", "Blue", 2, 4));
+                processList.add(new SRTFProcess("P3", "Green", 4, 1));
+                processList.add(new SRTFProcess("P4", "Yellow", 5, 4));
+                
+                int contextSwitchingTime = 2; // Adjust as needed
+                int agingFactor = 1; // Adjust the aging factor to mitigate starvation
+                SRTFSchedule scheduler = new SRTFSchedule();
 
-                SRTFSchedule scheduler1 = new SRTFSchedule();
-                scheduler1.simulateSRTF(processes, 1);
+                scheduler.simulateSRTFWithAging(processList, contextSwitchingTime, agingFactor);
         }
 
 }
