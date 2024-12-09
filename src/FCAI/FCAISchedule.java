@@ -83,7 +83,7 @@ public class FCAISchedule {
                     }
 
                     time++;
-                    Thread.sleep(100);
+                    Thread.sleep(1000);
                     process.updateBurstTime(1);
 
                     System.out.println("Executing " + process.process.name + ", remaining burst time: "
@@ -133,7 +133,7 @@ public class FCAISchedule {
         for (int i = 0; i < processes.length - 1; i++) {
             scheduleThread(processes[i]);
             try {
-                Thread.sleep((processes[i + 1].process.arrivalTime - processes[i].process.arrivalTime) * 100);
+                Thread.sleep((processes[i + 1].process.arrivalTime - processes[i].process.arrivalTime) * 1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
